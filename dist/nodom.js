@@ -353,9 +353,11 @@
 
   CSSStyleDeclaration.prototype.setValue = function (style) {
     var list = style.split(';');
-    for (var p in list) {
-      var pair = p.split(':');
-      this[pair[0].trim()] = pair[1].trim();
+    for (var i = 0; i < list.length; i++) {
+      var pair = list[i].split(':');
+      if (pair.length === 2) {
+        this[pair[0].trim()] = pair[1].trim();
+      }
     }
   };
 
@@ -382,16 +384,22 @@
 
   var HTMLElement = /*@__PURE__*/(function (Node) {
     function HTMLElement (options) {
+      var this$1 = this;
+
       Node.call(this);
 
       this.attributes = new Attributes();
-      this.style = new CSSStyleDeclaration();
+      this._style = new CSSStyleDeclaration();
       this.dataset = new Dataset();
 
       this.nodeType = 1;
 
       for (var key in options) {
-        this[key] = options[key];
+        if (key === 'style') {
+          this.style.cssText = options[key];
+        } else {
+          this[key] = options[key];
+        }
       }
 
       if (!this.tagName) {
@@ -403,6 +411,22 @@
       Object.defineProperty(this, 'isVoidEl', {
         value: voidElementLookup[this.tagName]
       });
+
+      // Add style property setter
+      Object.defineProperty(this, 'style', {
+        get: function () { return this$1._style; },
+        set: function (value) {
+          if (typeof value === 'string') {
+            this$1._style.cssText = value;
+          } else {
+            this$1._style = value;
+          }
+        },
+        enumerable: true
+      });
+
+      // Store the original style object
+      this._style = this.style;
     }
 
     if ( Node ) HTMLElement.__proto__ = Node;
@@ -463,7 +487,7 @@
         attributes.push('class="' + this.className + '"');
       }
 
-      var cssText = this.style.cssText;
+      var cssText = this.style.cssText || '';
       if (cssText.length > 0) {
         attributes.push('style="' + cssText + '"');
       }
