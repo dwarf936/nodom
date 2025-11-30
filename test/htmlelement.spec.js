@@ -65,4 +65,23 @@ test('HTMLElement', t => {
 
     t.equals(el.outerHTML, '<div class="beep boop"></div>');
   });
+
+  t.test('should handle style string correctly', t => {
+    t.plan(2);
+
+    const el = new HTMLElement();
+    el.style = 'cursor: pointer; color: red;';
+
+    t.equal(el.style.cursor, 'pointer');
+    t.equal(el.style.color, 'red');
+  });
+
+  t.test('should render style attribute correctly', t => {
+    t.plan(1);
+
+    const el = new HTMLElement();
+    el.style = 'cursor: pointer; color: red;';
+
+    t.equals(el.outerHTML, '<div style="cursor: pointer; color: red;"></div>');
+  });
 });

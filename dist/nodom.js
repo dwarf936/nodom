@@ -348,14 +348,18 @@
       }
       str += camelToDash(p) + ': ' + this[p] + '; ';
     }
-    return str;
+    // 移除末尾的空格
+    return str.trim();
   };
 
   CSSStyleDeclaration.prototype.setValue = function (style) {
     var list = style.split(';');
-    for (var p in list) {
-      var pair = p.split(':');
-      this[pair[0].trim()] = pair[1].trim();
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      var pair = item.split(':');
+      if (pair.length === 2) {
+        this[dashToCamel(pair[0].trim())] = pair[1].trim();
+      }
     }
   };
 
@@ -382,13 +386,28 @@
 
   var HTMLElement = /*@__PURE__*/(function (Node) {
     function HTMLElement (options) {
+      var this$1 = this;
+
       Node.call(this);
 
       this.attributes = new Attributes();
-      this.style = new CSSStyleDeclaration();
+      this._style = new CSSStyleDeclaration();
       this.dataset = new Dataset();
 
       this.nodeType = 1;
+
+      // 定义style属性的getter和setter
+      Object.defineProperty(this, 'style', {
+        get: function () { return this$1._style; },
+        set: function (value) {
+          if (typeof value === 'string') {
+            this$1._style.setValue(value);
+          } else {
+            this$1._style = value;
+          }
+        },
+        enumerable: true
+      });
 
       for (var key in options) {
         this[key] = options[key];
@@ -426,6 +445,7 @@
          key === 'attributes' ||
          key === 'dataset' ||
          key === '_classList' ||
+         key === '_style' ||
          !hasOwnProperty(this, key)) {
           continue;
         }
@@ -463,7 +483,7 @@
         attributes.push('class="' + this.className + '"');
       }
 
-      var cssText = this.style.cssText;
+      var cssText = this.style.cssText || '';
       if (cssText.length > 0) {
         attributes.push('style="' + cssText + '"');
       }
