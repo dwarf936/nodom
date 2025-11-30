@@ -11,7 +11,7 @@
     "build": "npm run test && rollup -n nodom -c -f umd lib/index -o dist/nodom.js",
     "uglify": "uglifyjs dist/nodom.js -cmo dist/nodom.min.js",
     "lint": "semistandard 'lib/**/*.js' 'test/**/*.js'",
-    "test": "npm run lint && buble-tape-runner test/*.js test/utils/*.js"
+    "test": "npm run lint && buble-tape-runner test/*.js test/utils/*.js test/style.spec.js"
   },
   "repository": {
     "type": "git",
@@ -31,5 +31,8 @@
     "semistandard": "~14.2.0",
     "tape": "^4.11.0",
     "uglify-js": "~3.6.0"
+  },
+  "dependencies": {
+    "redom": "^4.3.0"
   }
 }
